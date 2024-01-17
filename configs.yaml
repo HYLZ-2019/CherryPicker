@@ -1,0 +1,5 @@
+methods:
+  - name: "GT"
+    path: "/home/hylou/nas-cp/hylou/Results/disparity_tester/deblur_gt/EDI/data_000000/"
+  - name: "NoWarp"
+    path: "/home/hylou/nas-cp/hylou/Results/disparity_tester/deblur_nowarp/EDI/data_000000/"
