@@ -31,7 +31,7 @@ patch_border_width: 2
 box_border_width: 2
 
 # Configs for PPT generation
-placeholder_path: "EVA.jpg"
+placeholder_path: "icon.png"
 output_ppt_path: "output.pptx"
 small_cnt: 3 # 每张大图下面放的放大图数量
 groups_per_page: 5 # 每页贴几组图

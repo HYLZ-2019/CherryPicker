@@ -14,7 +14,7 @@ from image_cropper import crop_images
 from ppt_maker import make_ppt
 
 
-PLACEHOLDER_PATH = "EVA.jpg"
+PLACEHOLDER_PATH = "placeholder.png"
 class SingleImageDisplay(QWidget):
     def __init__(self, parent=None, app=None):
         self.app = app
@@ -660,8 +660,10 @@ class MyApp(QMainWindow):
         d = os.path.dirname(op)
         if not os.path.exists(d):
             os.makedirs(d)
-        with open(op, "r") as f:
-            content = yaml.load(f, Loader=yaml.FullLoader)
+        content = None
+        if os.path.exists(op):
+            with open(op, "r") as f:
+                content = yaml.load(f, Loader=yaml.FullLoader)
         if not type(content) == dict:
             content = {}
         items = content.get("crop_patches", [])
@@ -698,6 +700,8 @@ if __name__ == '__main__':
         config = make_variance_map(config)
     if config.get("make_ranking_map", False):
         config = make_ranking_map(config, lambda x, y: -np.abs(x-y).sum(axis=2))
+
+    PLACEHOLDER_PATH = config.get("placeholder_path", PLACEHOLDER_PATH)
 
     app = QApplication([])
     app.setStyleSheet("QLabel, QCheckBox{font-size: 12pt;}")
