@@ -1,5 +1,44 @@
 methods:
   - name: "GT"
     path: "/home/hylou/nas-cp/hylou/Results/disparity_tester/deblur_gt/EDI/data_000000/"
+    is_gt: true
   - name: "NoWarp"
     path: "/home/hylou/nas-cp/hylou/Results/disparity_tester/deblur_nowarp/EDI/data_000000/"
+    is_ours: true
+  - name: "GT2"
+    path: "/home/hylou/nas-cp/hylou/Results/disparity_tester/deblur_gt/EDI/data_000000/"
+  - name: "NoWarp2"
+    path: "/home/hylou/nas-cp/hylou/Results/disparity_tester/deblur_nowarp/EDI/data_000000/"
+  - name: "GT3"
+    path: "/home/hylou/nas-cp/hylou/Results/disparity_tester/deblur_gt/EDI/data_000000/"
+  - name: "NoWarp3"
+    path: "/home/hylou/nas-cp/hylou/Results/disparity_tester/deblur_nowarp/EDI/data_000000/"
+
+
+visualization_path: "visualization"
+make_variance_map: false
+make_ranking_map: false
+
+output_path: "output/cut_positions.txt"
+show_crop_alert: false
+display_rows: 2
+display_cols: 2
+
+# Configs for image cropping
+crop_img_path: "crop_img"
+crop_box_colors: ["red", "green", "blue", "yellow", "cyan", "magenta"]
+patch_border_width: 2
+box_border_width: 2
+
+# Configs for PPT generation
+placeholder_path: "EVA.jpg"
+output_ppt_path: "output.pptx"
+small_cnt: 3 # 每张大图下面放的放大图数量
+groups_per_page: 5 # 每页贴几组图
+# A4大小
+slide_w: 210
+slide_h: 297
+group_hori_gap_ratio: 0.05 # 每组之间横向间隔和每组横向宽度的比值
+group_vert_gap_ratio: 0.07 # 每组之间纵向间隔和每组纵向宽度的比值
+small_hori_gap_ratio: 0.05 # 小图-大图之间横向距离 / 小图宽度
+small_vert_gap_ratio: 0.05 # 小图-小图之间纵向距离 / 小图高度
