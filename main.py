@@ -2,10 +2,11 @@ import yaml
 import json
 import glob
 import os
+import sys
 import numpy as np
 import cv2
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QLabel, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QCheckBox, QSizePolicy, QGridLayout, QPushButton, QMessageBox, QComboBox
-from PyQt5.QtGui import QImage, QPixmap, QPainter, QPen
+from PyQt5.QtGui import QImage, QPixmap, QPainter, QPen, QIcon
 from PyQt5.QtCore import Qt, QPoint, QTimer
 
 from visualizer import make_variance_map, make_ranking_map
@@ -457,7 +458,8 @@ class MyApp(QMainWindow):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.setWindowTitle("My Application")
+        self.setWindowTitle("CherryPicker 1.0")
+        self.setWindowIcon(QIcon("icon.png"))
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
         self.whole_layout = QHBoxLayout(self.central_widget)
@@ -678,15 +680,20 @@ class MyApp(QMainWindow):
             # Display the alert
             alert = QMessageBox()
             alert.setText(f"Saved cropping info to {op}: frame_idx = {self.current_frame_idx}, x1 =  {self.draw_box_area.corner_1.x()}, y1 = {self.draw_box_area.corner_1.y()}, x2 = {self.draw_box_area.corner_2.x()}, y2 = {self.draw_box_area.corner_2.y()}")
-            alert.setWindowTitle("Alert")
+            alert.setWindowTitle("Crop successfully saved!")
             alert.setStandardButtons(QMessageBox.Ok)
             alert.exec_()
 
 
 if __name__ == '__main__':
-    with open('configs.yaml') as f:
+    if len(sys.argv) > 1:
+        config_file = sys.argv[1]
+    else:
+        config_file = 'configs.yaml'
+    with open(config_file) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     print(config)
+    
     if config.get("make_variance_map", False):
         config = make_variance_map(config)
     if config.get("make_ranking_map", False):
