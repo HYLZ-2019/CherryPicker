@@ -1,19 +1,18 @@
 methods:
   - name: "GT"
-    path: "/home/hylou/nas-cp/hylou/Results/disparity_tester/deblur_gt/EDI/data_000000/"
+    path: "/home/Results/GT/data_000000/"
     is_gt: true
-  - name: "NoWarp"
-    path: "/home/hylou/nas-cp/hylou/Results/disparity_tester/deblur_nowarp/EDI/data_000000/"
+  - name: "Ours"
+    path: "/home/Results/Ours/data_000000/"
     is_ours: true
-  - name: "GT2"
-    path: "/home/hylou/nas-cp/hylou/Results/disparity_tester/deblur_gt/EDI/data_000000/"
-  - name: "NoWarp2"
-    path: "/home/hylou/nas-cp/hylou/Results/disparity_tester/deblur_nowarp/EDI/data_000000/"
-  - name: "GT3"
-    path: "/home/hylou/nas-cp/hylou/Results/disparity_tester/deblur_gt/EDI/data_000000/"
-  - name: "NoWarp3"
-    path: "/home/hylou/nas-cp/hylou/Results/disparity_tester/deblur_nowarp/EDI/data_000000/"
-
+  - name: "Method1"
+    path: "/home/Results/Method1/data_000000/"
+  - name: "Method2"
+    path: "/home/Results/Method2/data_000000/"
+  - name: "Method3"
+    path: "/home/Results/Method3/data_000000/"
+  - name: "Method4"
+    path: "/home/Results/Method4/data_000000/"
 
 visualization_path: "visualization"
 make_variance_map: false
