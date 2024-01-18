@@ -1,0 +1,7 @@
+pyyaml
+glob2
+numpy
+opencv-python-headless
+python-pptx
+PyQt5
+webcolors
