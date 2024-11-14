@@ -9,7 +9,7 @@ import os
 
 def make_ppt(config):
 
-    root_path = config["crop_img_path"]
+    root_path = config["output_crop_path"]
     method_names = [m["name"] for m in config["methods"]]
     method_cnt = len(method_names)
 
@@ -110,4 +110,5 @@ def make_ppt(config):
                     pic = slide.shapes.add_picture(imglist[group_i*(1+SMALL_CNT)+small_i+1], Mm(small_left), Mm(small_top), width=Mm(smallw), height=Mm(smallh))
             
 
-    prs.save('test.pptx')
+    output_path = config["output_ppt_path"]
+    prs.save(output_path)

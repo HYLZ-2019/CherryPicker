@@ -4,3 +4,7 @@ output
 visualization
 **.pptx
 hide
+syntheticdata
+temp.py
+cut_positions.txt
+configs_temp.yaml

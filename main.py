@@ -531,7 +531,6 @@ class MyApp(QMainWindow):
         self.select_draw_method.setCurrentIndex(0)
 
         self.draw_box_area = DrawBoxArea(app=self)
-        self.draw_box_area.setMaximumSize(single_panel_size[0]*2, single_panel_size[1])
         self.left_part.addWidget(self.draw_box_area)
 
         self.current_frame_idx_input = QLineEdit()
@@ -568,8 +567,14 @@ class MyApp(QMainWindow):
         self.whole_layout.addLayout(self.right_part)
         self.central_widget.setLayout(self.whole_layout)
 
-        
         self.next_methods()
+
+        clear_previous = self.config.get("clear_previous", False)
+        if clear_previous:
+            output_info_path = self.config["output_info_path"]
+            if os.path.exists(output_info_path):
+                os.remove(output_info_path)
+
 
     def next_frame(self):
         self.current_frame_idx = (self.current_frame_idx + 1) % self.frame_cnt
@@ -656,7 +661,7 @@ class MyApp(QMainWindow):
         self.draw_box_area.set_image(self.img_paths[self.draw_method][idx])
 
     def save_crop(self):
-        op = self.config["output_path"]
+        op = self.config["output_info_path"]
         d = os.path.dirname(op)
         if not os.path.exists(d):
             os.makedirs(d)

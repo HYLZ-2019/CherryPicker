@@ -18,13 +18,17 @@ visualization_path: "visualization"
 make_variance_map: false
 make_ranking_map: false
 
-output_path: "output/cut_positions.txt"
+# IMPORTANT
+# Setting clear_previous will clear all previous cut_positions.txt, delete all files in output_crop_path and delete the PPT file in output_ppt_path! 
+clear_previous: true
+output_info_path: "./cut_positions.txt"
+output_crop_path: "crop_img" # Saves all cropped patches in here
+output_ppt_path: "./output.pptx"
 show_crop_alert: false
 display_rows: 2
 display_cols: 2
 
 # Configs for image cropping
-crop_img_path: "crop_img"
 crop_box_colors: ["red", "green", "blue", "yellow", "cyan", "magenta"]
 patch_border_width: 2
 box_border_width: 2
