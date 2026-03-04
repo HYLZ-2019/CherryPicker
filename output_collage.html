@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8' />
+  <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+  <title>CherryPicker Collage</title>
+  <style>
+    :root {
+      --font-family: Segoe UI, Arial, sans-serif;
+      --font-size: 14px;
+      --label-color: #ffffff;
+      --background-color: #111111;
+      --full-border-color: #ffffff;
+      --full-border-width: 0px;
+      --patch-border-width: 2px;
+      --gap-patch-full: 8px;
+      --gap-within-method: 16px;
+      --gap-examples: 28px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--background-color); color: #fff; font-family: var(--font-family); }
+    .toolbar { position: sticky; top: 0; background: rgba(0,0,0,.7); padding: 12px 16px; backdrop-filter: blur(6px); z-index: 50; display: flex; gap: 8px; align-items: center; }
+    .toolbar button { border: 1px solid #555; background: #222; color: #fff; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+    .toolbar .meta { color: #bbb; font-size: 12px; }
+    .page { padding: 16px; }
+    .example { margin-bottom: var(--gap-examples); border: 1px solid rgba(255,255,255,.08); border-radius: 8px; padding: 12px; background: rgba(255,255,255,.02); }
+    .example-title { font-size: 12px; color: #b7b7b7; margin-bottom: 10px; }
+    .method-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--gap-within-method); margin-bottom: 12px; }
+    .method-row:last-child { margin-bottom: 0; }
+    .method-card { border: 1px solid rgba(255,255,255,.1); border-radius: 6px; padding: 8px; background: rgba(255,255,255,.01); }
+    .method-name { color: var(--label-color); font-size: var(--font-size); font-weight: 600; margin-bottom: 8px; }
+    .bundle.bottom { display: flex; flex-direction: column; gap: var(--gap-patch-full); }
+    .bundle.right { display: flex; flex-direction: row; gap: var(--gap-patch-full); align-items: flex-start; }
+    .full-wrap img { width: 100%; display: block; border: var(--full-border-width) solid var(--full-border-color); }
+    .patch-list.bottom { display: flex; flex-direction: row; gap: 8px; overflow-x: auto; }
+    .patch-list.right { display: flex; flex-direction: column; gap: 8px; min-width: 120px; }
+    .patch-item { width: 100%; }
+    .patch-item img { width: 100%; display: block; }
+    .empty { color: #8a8a8a; font-size: 12px; border: 1px dashed #555; border-radius: 6px; padding: 14px; text-align: center; }
+    @media print {
+      .toolbar { display: none; }
+      body { background: #fff; }
+      .example { break-inside: avoid; background: #fff; border-color: #ddd; }
+      .method-name { color: #000; }
+      .example-title { color: #444; }
+    }
+    </style>
+</head>
+<body>
+  <div class='toolbar'>
+    <button onclick='window.print()'>Export PDF (Print)</button>
+    <span class='meta'>Examples: 1 | Options: {&quot;method_layout_text&quot;: &quot;&quot;, &quot;patch_count&quot;: 3, &quot;patch_position&quot;: &quot;bottom&quot;, &quot;full_border_color&quot;: &quot;#ffffff&quot;, &quot;full_border_width&quot;: 0, &quot;patch_border_colors&quot;: [&quot;#ff4d4d&quot;, &quot;#3dcf6a&quot;, &quot;#4b8dff&quot;, &quot;#ffc53d&quot;], &quot;patch_border_width&quot;: 2, &quot;gap_patch_to_full&quot;: 8, &quot;gap_within_method&quot;: 16, &quot;gap_between_examples&quot;: 28, &quot;font_family&quot;: &quot;Segoe UI, Arial, sans-serif&quot;, &quot;font_size&quot;: 14, &quot;label_color&quot;: &quot;#ffffff&quot;, &quot;background_color&quot;: &quot;#111111&quot;, &quot;example_ids&quot;: null}</span>
+  </div>
+  <div class='page'>
+    <section class='example'><div class='example-title'>Example #0</div><div class='method-row'>
+                    <div class='method-card'>
+                      <div class='method-name'>Input</div>
+                      <div class='bundle bottom'>
+                        <div class='full-wrap'><img src='/generated/Input/img000000_full_Input.png' /></div>
+                        <div class='patch-list bottom'><div class='patch-item'><img src='/generated/Input/img000000_crop00_Input.png' style='border:2px solid #ff4d4d;' /></div><div class='patch-item'><img src='/generated/Input/img000000_crop01_Input.png' style='border:2px solid #3dcf6a;' /></div><div class='patch-item'><img src='/generated/Input/img000000_crop02_Input.png' style='border:2px solid #4b8dff;' /></div></div>
+                      </div>
+                    </div>
+                    
+                    <div class='method-card'>
+                      <div class='method-name'>GT</div>
+                      <div class='bundle bottom'>
+                        <div class='full-wrap'><img src='/generated/GT/img000000_full_GT.png' /></div>
+                        <div class='patch-list bottom'><div class='patch-item'><img src='/generated/GT/img000000_crop00_GT.png' style='border:2px solid #ff4d4d;' /></div><div class='patch-item'><img src='/generated/GT/img000000_crop01_GT.png' style='border:2px solid #3dcf6a;' /></div><div class='patch-item'><img src='/generated/GT/img000000_crop02_GT.png' style='border:2px solid #4b8dff;' /></div></div>
+                      </div>
+                    </div>
+                    
+                    <div class='method-card'>
+                      <div class='method-name'>Ours</div>
+                      <div class='bundle bottom'>
+                        <div class='full-wrap'><img src='/generated/Ours/img000000_full_Ours.png' /></div>
+                        <div class='patch-list bottom'><div class='patch-item'><img src='/generated/Ours/img000000_crop00_Ours.png' style='border:2px solid #ff4d4d;' /></div><div class='patch-item'><img src='/generated/Ours/img000000_crop01_Ours.png' style='border:2px solid #3dcf6a;' /></div><div class='patch-item'><img src='/generated/Ours/img000000_crop02_Ours.png' style='border:2px solid #4b8dff;' /></div></div>
+                      </div>
+                    </div>
+                    
+                    <div class='method-card'>
+                      <div class='method-name'>AdaIR</div>
+                      <div class='bundle bottom'>
+                        <div class='full-wrap'><img src='/generated/AdaIR/img000000_full_AdaIR.png' /></div>
+                        <div class='patch-list bottom'><div class='patch-item'><img src='/generated/AdaIR/img000000_crop00_AdaIR.png' style='border:2px solid #ff4d4d;' /></div><div class='patch-item'><img src='/generated/AdaIR/img000000_crop01_AdaIR.png' style='border:2px solid #3dcf6a;' /></div><div class='patch-item'><img src='/generated/AdaIR/img000000_crop02_AdaIR.png' style='border:2px solid #4b8dff;' /></div></div>
+                      </div>
+                    </div>
+                    
+                    <div class='method-card'>
+                      <div class='method-name'>AirNet</div>
+                      <div class='bundle bottom'>
+                        <div class='full-wrap'><img src='/generated/AirNet/img000000_full_AirNet.png' /></div>
+                        <div class='patch-list bottom'><div class='patch-item'><img src='/generated/AirNet/img000000_crop00_AirNet.png' style='border:2px solid #ff4d4d;' /></div><div class='patch-item'><img src='/generated/AirNet/img000000_crop01_AirNet.png' style='border:2px solid #3dcf6a;' /></div><div class='patch-item'><img src='/generated/AirNet/img000000_crop02_AirNet.png' style='border:2px solid #4b8dff;' /></div></div>
+                      </div>
+                    </div>
+                    
+                    <div class='method-card'>
+                      <div class='method-name'>DA-CLIP</div>
+                      <div class='bundle bottom'>
+                        <div class='full-wrap'><img src='/generated/DA-CLIP/img000000_full_DA-CLIP.png' /></div>
+                        <div class='patch-list bottom'><div class='patch-item'><img src='/generated/DA-CLIP/img000000_crop00_DA-CLIP.png' style='border:2px solid #ff4d4d;' /></div><div class='patch-item'><img src='/generated/DA-CLIP/img000000_crop01_DA-CLIP.png' style='border:2px solid #3dcf6a;' /></div><div class='patch-item'><img src='/generated/DA-CLIP/img000000_crop02_DA-CLIP.png' style='border:2px solid #4b8dff;' /></div></div>
+                      </div>
+                    </div>
+                    
+                    <div class='method-card'>
+                      <div class='method-name'>DCPT</div>
+                      <div class='bundle bottom'>
+                        <div class='full-wrap'><img src='/generated/DCPT/img000000_full_DCPT.png' /></div>
+                        <div class='patch-list bottom'><div class='patch-item'><img src='/generated/DCPT/img000000_crop00_DCPT.png' style='border:2px solid #ff4d4d;' /></div><div class='patch-item'><img src='/generated/DCPT/img000000_crop01_DCPT.png' style='border:2px solid #3dcf6a;' /></div><div class='patch-item'><img src='/generated/DCPT/img000000_crop02_DCPT.png' style='border:2px solid #4b8dff;' /></div></div>
+                      </div>
+                    </div>
+                    
+                    <div class='method-card'>
+                      <div class='method-name'>MoCE-IR</div>
+                      <div class='bundle bottom'>
+                        <div class='full-wrap'><img src='/generated/MoCE-IR/img000000_full_MoCE-IR.png' /></div>
+                        <div class='patch-list bottom'><div class='patch-item'><img src='/generated/MoCE-IR/img000000_crop00_MoCE-IR.png' style='border:2px solid #ff4d4d;' /></div><div class='patch-item'><img src='/generated/MoCE-IR/img000000_crop01_MoCE-IR.png' style='border:2px solid #3dcf6a;' /></div><div class='patch-item'><img src='/generated/MoCE-IR/img000000_crop02_MoCE-IR.png' style='border:2px solid #4b8dff;' /></div></div>
+                      </div>
+                    </div>
+                    
+                    <div class='method-card'>
+                      <div class='method-name'>PromptIR</div>
+                      <div class='bundle bottom'>
+                        <div class='full-wrap'><img src='/generated/PromptIR/img000000_full_PromptIR.png' /></div>
+                        <div class='patch-list bottom'><div class='patch-item'><img src='/generated/PromptIR/img000000_crop00_PromptIR.png' style='border:2px solid #ff4d4d;' /></div><div class='patch-item'><img src='/generated/PromptIR/img000000_crop01_PromptIR.png' style='border:2px solid #3dcf6a;' /></div><div class='patch-item'><img src='/generated/PromptIR/img000000_crop02_PromptIR.png' style='border:2px solid #4b8dff;' /></div></div>
+                      </div>
+                    </div>
+                    
+                    <div class='method-card'>
+                      <div class='method-name'>VLU-Net</div>
+                      <div class='bundle bottom'>
+                        <div class='full-wrap'><img src='/generated/VLU-Net/img000000_full_VLU-Net.png' /></div>
+                        <div class='patch-list bottom'><div class='patch-item'><img src='/generated/VLU-Net/img000000_crop00_VLU-Net.png' style='border:2px solid #ff4d4d;' /></div><div class='patch-item'><img src='/generated/VLU-Net/img000000_crop01_VLU-Net.png' style='border:2px solid #3dcf6a;' /></div><div class='patch-item'><img src='/generated/VLU-Net/img000000_crop02_VLU-Net.png' style='border:2px solid #4b8dff;' /></div></div>
+                      </div>
+                    </div>
+                    
+                    <div class='method-card'>
+                      <div class='method-name'>WeatherDiff</div>
+                      <div class='bundle bottom'>
+                        <div class='full-wrap'><img src='/generated/WeatherDiff/img000000_full_WeatherDiff.png' /></div>
+                        <div class='patch-list bottom'><div class='patch-item'><img src='/generated/WeatherDiff/img000000_crop00_WeatherDiff.png' style='border:2px solid #ff4d4d;' /></div><div class='patch-item'><img src='/generated/WeatherDiff/img000000_crop01_WeatherDiff.png' style='border:2px solid #3dcf6a;' /></div><div class='patch-item'><img src='/generated/WeatherDiff/img000000_crop02_WeatherDiff.png' style='border:2px solid #4b8dff;' /></div></div>
+                      </div>
+                    </div>
+                    </div></section>
+  </div>
+</body>
+</html>

@@ -1,114 +1,173 @@
-# Tool for sewing images into a PPT file.
-# Made by Hylz.
+"""
+Tool for sewing images into a PPT file.
+Originally by Hylz – rewritten for web-based CherryPicker.
 
-from pptx import Presentation
-from pptx.util import Inches, Mm
+Bug fixes vs original:
+- Guard against empty img_paths (no crops generated yet)
+- Guard against unreadable images when computing dimensions
+- Use sorted(seqs.keys()) for deterministic ordering
+- Avoid crash when placeholder image is missing
+- Better logging instead of bare print
+"""
+
 import glob
-import cv2
+import logging
 import os
 
-def make_ppt(config):
+import cv2
+from pptx import Presentation
+from pptx.util import Mm
 
+logger = logging.getLogger("cherrypicker.ppt")
+
+
+def make_ppt(config: dict) -> None:
     root_path = config["output_crop_path"]
+    if not os.path.isdir(root_path):
+        raise FileNotFoundError(
+            f"Crop output directory not found: {root_path}. Run 'Make All Crops' first."
+        )
+
     method_names = [m["name"] for m in config["methods"]]
     method_cnt = len(method_names)
 
-    SMALL_CNT = config.get("small_cnt", 3) # 每张大图下面放的放大图数量
-    GROUPS_PER_PAGE = config.get("groups_per_page", 5) # 每页贴几组图
-    # A4大小
+    SMALL_CNT = config.get("small_cnt", 3)
+    GROUPS_PER_PAGE = config.get("groups_per_page", 5)
     SLIDE_W = config.get("slide_w", 210)
     SLIDE_H = config.get("slide_h", 297)
 
-    GROUP_HORI_GAP_RATIO = config.get("group_hori_gap_ratio", 0.05) # 每组之间横向间隔和每组横向宽度的比值
-    GROUP_VERT_GAP_RATIO = config.get("group_vert_gap_ratio", 0.07) # 每组之间纵向间隔和每组纵向宽度的比值
-    SMALL_HORI_GAP_RATIO = config.get("small_hori_gap_ratio", 0.05) # 小图-大图之间横向距离 / 小图宽度
-    SMALL_VERT_GAP_RATIO = config.get("small_vert_gap_ratio", 0.05) # 小图-小图之间纵向距离 / 小图高度
+    GROUP_HORI_GAP_RATIO = config.get("group_hori_gap_ratio", 0.05)
+    GROUP_VERT_GAP_RATIO = config.get("group_vert_gap_ratio", 0.07)
+    SMALL_HORI_GAP_RATIO = config.get("small_hori_gap_ratio", 0.05)
+    SMALL_VERT_GAP_RATIO = config.get("small_vert_gap_ratio", 0.05)
 
-    AREA_W = SLIDE_W * 0.8 # 图片要贴满PPT的多大范围
-    AREA_H = SLIDE_W * 0.95 # 实际上会靠上放，如果太多了就向下溢出
+    AREA_W = SLIDE_W * 0.8
+    AREA_H = SLIDE_H * 0.95  # FIX: was SLIDE_W * 0.95 (typo)
 
-    # img_paths[m] is a sequence of image paths for method m:
-    # [big_1, small_1_1, small_1_2, big_2, small_2_1, small_2_2, ...]
-    img_paths = []
+    placeholder = config.get("placeholder_path", "placeholder.png")
+
+    # ---- Collect image paths per method ---------------------------------
+    img_paths: list[list[str]] = []
 
     for m in method_names:
+        method_dir = os.path.join(root_path, m)
+        if not os.path.isdir(method_dir):
+            logger.warning("Method directory missing: %s", method_dir)
+            img_paths.append([])
+            continue
+
         all_imgs = sorted(
-            glob.glob(os.path.join(root_path, m, "*.png"))
-            + glob.glob(os.path.join(root_path, m, "*.jpg"))
+            glob.glob(os.path.join(method_dir, "*.png"))
+            + glob.glob(os.path.join(method_dir, "*.jpg"))
         )
-        seqs = {}
+
+        seqs: dict[str, dict] = {}
         for img in all_imgs:
             base = os.path.basename(img)
             seq = base.split("_")[0]
-            if not seq in seqs:
-                seqs[seq] = { "big": None, "small": [] }
+            if seq not in seqs:
+                seqs[seq] = {"big": None, "small": []}
             if "crop" in base:
-                if len(seqs[seq]["small"]) == SMALL_CNT:
-                    print("Warning: Sequence {} has more than {} crops. Extra crops will be neglected.".format(seq, SMALL_CNT))
-                    continue
+                if len(seqs[seq]["small"]) >= SMALL_CNT:
+                    logger.warning(
+                        "Sequence %s has more than %d crops – extras ignored.", seq, SMALL_CNT
+                    )
                 else:
                     seqs[seq]["small"].append(img)
-            if "full" in base:
+            elif "full" in base:
                 seqs[seq]["big"] = img
 
-        my_imgs = []
-        for seq in seqs:
-            my_imgs.append(seqs[seq]["big"])
+        my_imgs: list[str] = []
+        for seq in sorted(seqs.keys()):
+            big = seqs[seq]["big"]
+            if big is None:
+                logger.warning("No full image for sequence %s – skipping.", seq)
+                continue
+            my_imgs.append(big)
             my_imgs.extend(seqs[seq]["small"])
-            for i in range(SMALL_CNT - len(seqs[seq]["small"])):
-                # Not enough crops. Use a placeholder.
-                my_imgs.append(config.get("placeholder_path", "placeholder.png"))
+            # Pad with placeholder if not enough crops
+            for _ in range(SMALL_CNT - len(seqs[seq]["small"])):
+                my_imgs.append(placeholder)
         img_paths.append(my_imgs)
 
-    print(img_paths)
-    # Do the real work
+    # Validate
+    if not img_paths or not img_paths[0]:
+        raise ValueError("No cropped images found. Run 'Make All Crops' first.")
 
-    group_cnt = len(img_paths[0]) // (SMALL_CNT+1)
+    stride = SMALL_CNT + 1
+    group_cnt = len(img_paths[0]) // stride
     for pthlist in img_paths:
-        assert len(pthlist) == group_cnt * (SMALL_CNT+1)
+        if len(pthlist) != group_cnt * stride:
+            raise ValueError(
+                f"Image count mismatch: expected {group_cnt * stride}, got {len(pthlist)}"
+            )
+
     page_cnt = (group_cnt + GROUPS_PER_PAGE - 1) // GROUPS_PER_PAGE
 
-    bighpix, bigwpix, _ = cv2.imread(img_paths[0][0]).shape # 大图比例
-    smallhpix, smallwpix, _ = cv2.imread(img_paths[0][1]).shape # 小图比例
-    group_w = AREA_W / GROUPS_PER_PAGE # 每组图的宽度
+    # ---- Compute layout dimensions from first images --------------------
+    big_sample = cv2.imread(img_paths[0][0])
+    if big_sample is None:
+        raise FileNotFoundError(f"Cannot read big image: {img_paths[0][0]}")
+    bighpix, bigwpix = big_sample.shape[:2]
 
-    bigw = group_w / (1 + GROUP_HORI_GAP_RATIO) # 大图宽度
-    bigh = bigw * bighpix / bigwpix # 大图高度
-    smallw = bigw / (SMALL_CNT + (SMALL_CNT-1)*SMALL_HORI_GAP_RATIO) # 小图宽度
-    smallh = smallw * smallhpix / smallwpix # 小图高度
-    group_h = (bigh + smallh*(1+SMALL_VERT_GAP_RATIO))*(1+GROUP_VERT_GAP_RATIO) # 每组图的高度
+    small_sample = cv2.imread(img_paths[0][1])
+    if small_sample is None:
+        raise FileNotFoundError(f"Cannot read small image: {img_paths[0][1]}")
+    smallhpix, smallwpix = small_sample.shape[:2]
 
+    group_w = AREA_W / GROUPS_PER_PAGE
+    bigw = group_w / (1 + GROUP_HORI_GAP_RATIO)
+    bigh = bigw * bighpix / max(bigwpix, 1)
+    smallw = bigw / (SMALL_CNT + (SMALL_CNT - 1) * SMALL_HORI_GAP_RATIO) if SMALL_CNT else bigw
+    smallh = smallw * smallhpix / max(smallwpix, 1)
+    group_h = (bigh + smallh * (1 + SMALL_VERT_GAP_RATIO)) * (1 + GROUP_VERT_GAP_RATIO)
+
+    # ---- Build the presentation -----------------------------------------
     prs = Presentation()
     prs.slide_width = Mm(SLIDE_W)
     prs.slide_height = Mm(SLIDE_H)
-    blank_slide_layout = prs.slide_layouts[6]
+    blank_layout = prs.slide_layouts[6]
 
-    for pagenum in range (page_cnt):
-        slide = prs.slides.add_slide(blank_slide_layout)
+    for pagenum in range(page_cnt):
+        slide = prs.slides.add_slide(blank_layout)
 
         for row_i in range(method_cnt):
-            
-            big_top = (SLIDE_H - AREA_H) / 2 + group_h*row_i
-            small_top = big_top + bigh + smallh*SMALL_VERT_GAP_RATIO
+            big_top = (SLIDE_H - AREA_H) / 2 + group_h * row_i
+            small_top = big_top + bigh + smallh * SMALL_VERT_GAP_RATIO
 
+            # Method name label
             text_left = 0
             text_top = (big_top + small_top) / 2
             text_width = (SLIDE_W - AREA_W) / 2
             text_height = small_top - big_top
-            textbox = slide.shapes.add_textbox(Mm(text_left), Mm(text_top), Mm(text_width), Mm(text_height))
-            text_frame = textbox.text_frame
-            p = text_frame.add_paragraph()
+            txbox = slide.shapes.add_textbox(
+                Mm(text_left), Mm(text_top), Mm(text_width), Mm(text_height)
+            )
+            p = txbox.text_frame.add_paragraph()
             p.text = method_names[row_i]
 
-            imglist = img_paths[row_i][pagenum*GROUPS_PER_PAGE*(1+SMALL_CNT):(pagenum+1)*GROUPS_PER_PAGE*(1+SMALL_CNT)]
-            page_groupcnt = len(imglist) // (1+SMALL_CNT)
+            start = pagenum * GROUPS_PER_PAGE * stride
+            end = min(start + GROUPS_PER_PAGE * stride, len(img_paths[row_i]))
+            imglist = img_paths[row_i][start:end]
+            page_groupcnt = len(imglist) // stride
+
             for group_i in range(page_groupcnt):
-                big_left = (SLIDE_W - AREA_W) / 2 + group_w*group_i
-                pic = slide.shapes.add_picture(imglist[group_i*(1+SMALL_CNT)], Mm(big_left), Mm(big_top), width=Mm(bigw), height=Mm(bigh))
+                big_left = (SLIDE_W - AREA_W) / 2 + group_w * group_i
+                big_path = imglist[group_i * stride]
+                if os.path.isfile(big_path):
+                    slide.shapes.add_picture(
+                        big_path, Mm(big_left), Mm(big_top),
+                        width=Mm(bigw), height=Mm(bigh),
+                    )
                 for small_i in range(SMALL_CNT):
-                    small_left = big_left + (1+SMALL_HORI_GAP_RATIO)*smallw*small_i
-                    pic = slide.shapes.add_picture(imglist[group_i*(1+SMALL_CNT)+small_i+1], Mm(small_left), Mm(small_top), width=Mm(smallw), height=Mm(smallh))
-            
+                    small_left = big_left + (1 + SMALL_HORI_GAP_RATIO) * smallw * small_i
+                    small_path = imglist[group_i * stride + small_i + 1]
+                    if os.path.isfile(small_path):
+                        slide.shapes.add_picture(
+                            small_path, Mm(small_left), Mm(small_top),
+                            width=Mm(smallw), height=Mm(smallh),
+                        )
 
     output_path = config["output_ppt_path"]
     prs.save(output_path)
+    logger.info("PPT saved to %s", output_path)

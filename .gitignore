@@ -8,3 +8,5 @@ syntheticdata
 temp.py
 cut_positions.txt
 configs_temp.yaml
+dataset_configs
+outputs

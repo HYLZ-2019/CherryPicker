@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CherryPicker</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <!-- Toast container -->
+  <div id="toast-container"></div>
+
+  <!-- Top bar -->
+  <header id="top-bar">
+    <div id="brand-area">
+      <h1>🍒 CherryPicker</h1>
+      <button id="btn-toggle-mode" class="mode-toggle-btn">🧩 拼图模式</button>
+    </div>
+    <div id="frame-nav" class="mode-pick-only">
+      <button id="btn-prev-frame" title="Previous Frame (A)">◀ Prev Frame</button>
+      <label>Frame
+        <input id="frame-idx-input" type="number" min="0" value="0" />
+        <span id="frame-total">/ 0</span>
+      </label>
+      <button id="btn-next-frame" title="Next Frame (D)">Next Frame ▶</button>
+    </div>
+    <div id="shortcuts-hint" class="mode-pick-only">
+      <kbd>A</kbd>/<kbd>D</kbd> Frame &nbsp;
+      <kbd>W</kbd>/<kbd>S</kbd> Methods &nbsp;
+      <kbd>Space</kbd> Save Crop &nbsp;
+      <kbd>Delete</kbd> Remove last crop
+    </div>
+  </header>
+
+  <div id="main-container">
+    <!-- ============  LEFT PANEL  ============ -->
+    <aside id="left-panel">
+      <!-- Method selection -->
+      <section class="panel-section mode-pick-only">
+        <h3>Methods to Display</h3>
+        <div id="method-buttons"></div>
+        <div class="btn-row">
+          <button id="btn-prev-methods" title="(S)">◀ Prev Methods</button>
+          <button id="btn-next-methods" title="(W)">Next Methods ▶</button>
+        </div>
+      </section>
+
+      <!-- Draw-box source selector -->
+      <section class="panel-section mode-pick-only">
+        <h3>Draw Box Source</h3>
+        <select id="draw-method-select"></select>
+      </section>
+
+      <!-- Crop box controls -->
+      <section class="panel-section mode-pick-only">
+        <h3>Crop Region</h3>
+        <div class="crop-inputs">
+          <label>X <input id="crop-x" type="number" value="0" /></label>
+          <label>Y <input id="crop-y" type="number" value="0" /></label>
+          <label>W <input id="crop-w" type="number" value="100" /></label>
+          <label>H <input id="crop-h" type="number" value="100" /></label>
+        </div>
+        <div class="crop-inputs">
+          <label>H/W Ratio <input id="crop-ratio" type="number" step="0.0001" value="1.0000" /></label>
+        </div>
+        <div class="checkbox-row">
+          <label><input id="lock-ratio" type="checkbox" /> Lock H/W Ratio</label>
+          <label><input id="lock-size" type="checkbox" /> Lock Size</label>
+        </div>
+        <p class="hint">Left-click to set top-left corner. Right-click to set bottom-right corner. Or drag to draw a box.</p>
+      </section>
+
+      <!-- Actions -->
+      <section class="panel-section mode-pick-only">
+        <h3>Actions</h3>
+        <button id="btn-save-crop" class="action-btn primary" title="Space">💾 Save Current Crop</button>
+        <button id="btn-make-crops" class="action-btn" title="Enter">✂️ Make All Crops</button>
+      </section>
+
+      <!-- Stitch mode controls -->
+      <section class="panel-section mode-stitch-only" id="stitch-controls">
+        <h3>Stitch Parameters</h3>
+        <div class="stitch-grid">
+          <div class="stitch-field">
+            <label>Methods Layout</label>
+            <textarea id="stitch-method-layout" rows="4">"Input","GT","Ours"
+"AdaIR","AirNet","PromptIR"</textarea>
+          </div>
+
+          <div class="stitch-row-2">
+            <div class="stitch-field">
+              <label>Patches / Example</label>
+              <input id="stitch-patch-count" type="number" min="1" value="3" />
+            </div>
+            <div class="stitch-field">
+              <label>Examples (0 = all)</label>
+              <input id="stitch-example-limit" type="number" min="0" value="0" />
+            </div>
+          </div>
+
+          <div class="stitch-row-2">
+            <div class="stitch-field">
+              <label>Example Gap (px)</label>
+              <input id="stitch-example-gap" type="number" min="0" value="16" />
+            </div>
+            <div class="stitch-field">
+              <label>Image Gap (px)</label>
+              <input id="stitch-image-gap" type="number" min="0" value="16" />
+            </div>
+          </div>
+
+          <div class="stitch-field">
+            <label>Patch Position</label>
+            <select id="stitch-patch-position">
+              <option value="bottom" selected>Below big image (left → right)</option>
+              <option value="right">Right of big image (top → bottom)</option>
+            </select>
+          </div>
+
+          <div class="stitch-field">
+            <label>Patch Border Colors</label>
+            <input id="stitch-border-colors" type="text" value="red, green, blue" />
+          </div>
+
+          <div class="stitch-row-2">
+            <div class="stitch-field">
+              <label>Patch Border Width (px)</label>
+              <input id="stitch-border-width" type="number" min="0" value="2" />
+            </div>
+            <div class="stitch-field">
+              <label>Full Box Border Width (px)</label>
+              <input id="stitch-full-box-border-width" type="number" min="0" value="2" />
+            </div>
+          </div>
+
+          <div class="stitch-row-2">
+            <div class="stitch-field">
+              <label>Patch↔Big Gap (px)</label>
+              <input id="stitch-patch-gap" type="number" min="0" value="8" />
+            </div>
+            <div class="stitch-field">
+              <label>Big Image Width (px)</label>
+              <input id="stitch-big-width" type="number" min="60" value="220" />
+            </div>
+          </div>
+
+          <div class="stitch-row-2">
+            <div class="stitch-field">
+              <label>Font Family</label>
+              <input id="stitch-font-family" type="text" value="Arial, sans-serif" />
+            </div>
+            <div class="stitch-field">
+              <label>Font Size (px)</label>
+              <input id="stitch-font-size" type="number" min="8" value="16" />
+            </div>
+          </div>
+
+          <div class="stitch-field">
+            <label>Method Aliases (JSON)</label>
+            <textarea id="stitch-method-alias" rows="5"></textarea>
+          </div>
+        </div>
+        <button id="btn-export-html" class="action-btn primary">⬇️ 导出 HTML</button>
+        <button id="btn-export-pdf" class="action-btn">🖨 导出 PDF（打印）</button>
+        <button id="btn-export-pdf-lossless" class="action-btn">📄 导出无损 PDF（后端）</button>
+        <div class="btn-row">
+          <button id="btn-save-stitch-config" class="action-btn">💾 保存拼图配置(YAML)</button>
+          <button id="btn-load-stitch-config" class="action-btn">📥 导入拼图配置(YAML)</button>
+        </div>
+        <input id="stitch-config-file" type="file" accept=".yaml,.yml" style="display:none" />
+        <div id="stitch-config-alert" class="stitch-alert" style="display:none"></div>
+      </section>
+
+      <!-- Saved crops list -->
+      <section class="panel-section mode-pick-only">
+        <h3>Saved Crops <span id="crop-count">(0)</span></h3>
+        <ul id="crop-list"></ul>
+        <button id="btn-clear-crops" class="action-btn danger" style="margin-top:4px">🗑 Clear All Crops</button>
+      </section>
+    </aside>
+
+    <!-- ============  CENTER: DRAW BOX  ============ -->
+    <section id="center-panel" class="mode-pick-only">
+      <div id="canvas-wrapper">
+        <canvas id="draw-canvas"></canvas>
+      </div>
+    </section>
+
+    <!-- ============  DRAGGABLE SPLITTER  ============ -->
+    <div id="splitter" class="mode-pick-only"></div>
+
+    <!-- ============  RIGHT PANEL: METHOD DISPLAYS  ============ -->
+    <section id="right-panel">
+      <div id="display-grid"></div>
+      <div id="stitch-preview-panel" class="mode-stitch-only">
+        <div id="stitch-preview-canvas"></div>
+      </div>
+    </section>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
